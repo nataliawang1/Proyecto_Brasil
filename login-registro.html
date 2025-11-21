@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Acceso</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        body {
+            font-family: "Poppins", sans-serif;
+            background: rgba(0,0,0,0.65);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(6px);
+        }
+
+        .contenedor {
+            width: 360px;
+            padding: 30px;
+            border-radius: 20px;
+            background: white;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+            animation: aparecer 0.35s ease-out;
+        }
+
+        @keyframes aparecer {
+            from { transform: translateY(-20px); opacity: 0; }
+            to   { transform: translateY(0); opacity: 1; }
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #2d2d2d;
+        }
+
+        .mensaje {
+            display: none;
+            padding: 12px;
+            margin: 8px 0 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .mensaje.error { background: #ffd2d2; color: #8b0000; }
+        .mensaje.ok { background: #c8f7c5; color: #1e5820; }
+
+        form {
+            display: none;
+            flex-direction: column;
+        }
+
+        form input {
+            padding: 12px;
+            margin: 8px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: .3s;
+        }
+
+        form input:focus {
+            border-color: #3ca64a;
+            outline: none;
+        }
+
+        .botonera {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .botonera button {
+            width: 50%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: .3s;
+        }
+
+        .btn-login {
+            background: #3ca64a;
+            color: white;
+             border: none;
+    border-radius: 12px;
+    padding: 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-registro {
+            background: #dfe4e8;
+            color: #333;
+        }
+
+        .btn-login:hover {
+            background: #2e7f38;
+        }
+
+        .btn-registro:hover {
+            background: #cfd5d9;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="contenedor">
+
+    <h2 id="titulo">Iniciar Sesión</h2>
+    <div id="mensaje" class="mensaje"></div>
+
+    <form id="formLogin" action="auth.php?accion=login" method="POST" style="display:flex;">
+        <input type="email" name="email" placeholder="Correo electrónico" required>
+        <input type="password" name="password" placeholder="Contraseña" required>
+        <button class="btn-login" style="margin-top:15px;">Entrar</button>
+    </form>
+
+    <form id="formRegistro" action="auth.php?accion=registro" method="POST">
+        <input type="text" name="nombre" placeholder="Nombre completo" required>
+        <input type="email" name="email" placeholder="Correo electrónico" required>
+        <input type="password" name="password" placeholder="Contraseña" required>
+        <button class="btn-login" style="margin-top:15px;">Crear cuenta</button>
+    </form>
+
+    <div class="botonera">
+        <button class="btn-login" onclick="mostrarLogin()">Login</button>
+        <button class="btn-registro" onclick="mostrarRegistro()">Registro</button>
+    </div>
+
+</div>
+
+<script>
+    function mostrarLogin() {
+        document.getElementById("formLogin").style.display = "flex";
+        document.getElementById("formRegistro").style.display = "none";
+        document.getElementById("titulo").innerText = "Iniciar Sesión";
+    }
+
+    function mostrarRegistro() {
+        document.getElementById("formLogin").style.display = "none";
+        document.getElementById("formRegistro").style.display = "flex";
+        document.getElementById("titulo").innerText = "Registrarse";
+    }
+
+    (function(){
+        const params = new URLSearchParams(window.location.search);
+        const error = params.get('error');
+        const msg = params.get('msg');
+        const box = document.getElementById('mensaje');
+
+        const mensajes = {
+            contrasena_incorrecta: '❌ Contraseña incorrecta.',
+            correo_no_existe: '❌ El correo no existe.',
+            correo_existente: '❌ Este correo ya está registrado.',
+            registro_fallo: '❌ Ocurrió un error al registrar. Intenta de nuevo.',
+            registro_ok: '✔ Registro exitoso. Ahora puedes iniciar sesión.'
+        };
+
+        if (error || msg) {
+            if (error) {
+                box.textContent = mensajes[error] || '❌ Ocurrió un error.';
+                box.classList.remove('ok');
+                box.classList.add('error');
+                if (error === 'contrasena_incorrecta' || error === 'correo_no_existe') {
+                    mostrarLogin();
+                } else {
+                    mostrarRegistro();
+                }
+            } else if (msg) {
+                box.textContent = mensajes[msg] || '';
+                box.classList.remove('error');
+                box.classList.add('ok');
+                if (msg === 'registro_ok') mostrarLogin();
+            }
+            box.style.display = 'block';
+            if (window.history && window.history.replaceState) {
+                const cleanUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+            }
+        }
+    })();
+</script>
+
+</body>
+</html>
